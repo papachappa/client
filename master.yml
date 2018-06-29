@@ -1,0 +1,81 @@
+version: "3"
+
+services:
+    backend:
+        hostname: backend
+        container_name: testportal_backend
+        image: ailin/testportal_backend
+        restart: always
+        command: ./start.sh
+        depends_on:
+            - db
+            - rabbit
+            - cache
+        expose:
+            - "8001"
+
+    worker:
+        hostname: worker
+        container_name: testportal_worker
+        image: ailin/testportal_worker
+        restart: always
+        command: ./start.sh
+        depends_on:
+            - db
+            - rabbit
+            - cache
+
+    frontend:
+        hostname: frontend
+        container_name: testportal_frontend
+        image: ailin/frontend
+        command: "tail -f /dev/null"
+        volumes:
+            - nginx-frontend:/etc/nginx/sites-available/
+            - static-frontend:/app/
+
+    nginx:
+        container_name: testportal_nginx
+        image: nginx
+        restart: always
+        ports: 
+            - "8000:8000"
+        volumes:
+            - nginx-frontend:/etc/nginx/conf.d/:ro
+            - static-frontend:/var/www/testportal/:ro
+        depends_on:
+            - backend
+            - frontend
+
+    rabbit:
+        hostname: rabbit
+        container_name: testportal_rabbit
+        image: rabbitmq:3.6.0
+        restart: always
+        environment:
+            - RABBITMQ_DEFAULT_USER=tp_user
+            - RABBITMQ_DEFAULT_PASS=tp_user_password
+        ports:
+            - "15672:5672"
+
+    db:
+        hostname: db
+        container_name: testportal_db
+        image: postgres:9.5
+        restart: always
+        environment:
+            - POSTGRES_USER=tp_user
+            - POSTGRES_PASSWORD=tp_user_password
+            - POSTGRES_DB=test_portal
+        expose:
+            - "5432"
+
+    cache:
+        hostname: cache
+        container_name: testportal_cache
+        image: memcached:1.5.7
+        restart: always
+
+volumes:
+    static-frontend: {}
+    nginx-frontend: {}
