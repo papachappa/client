@@ -1,0 +1,11 @@
+scripts/
+
+.pylintrc
+changelog.txt
+Makefile
+
+.dockerignore
+
+var/
+tmp/
+venv/

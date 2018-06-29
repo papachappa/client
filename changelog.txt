@@ -1,0 +1,131 @@
+v9.1 2018-06-18
+
+Evgenii Metelev <emetelev@luxoft.com>
+Aleksandr Ilin <ailin@luxoft.com>
+
+    * [AI] Requirements freezed
+
+    * [EM] Django to requirements for fvp
+
+    * [EM] Press button fix
+
+    * [EM] Lstreamer fix
+
+
+v9.0 2018-05-18
+
+Evgenii Metelev <emetelev@luxoft.com>
+Aleksandr Ilin <ailin@luxoft.com>
+
+    * Huge refactoring:
+    ** Mixins pattern introduced and applyed
+    ** test result now have propper class
+    ** controllerparams refactored with properties
+
+    * [EM] Add upnp util
+
+    * [EM] Add delete loreg keys controller
+
+    * [EM] Add start lstreamer controller
+
+
+v8.0 2018-04-27
+
+Evgenii Metelev <emetelev@luxoft.com>
+
+    * Design library of making screenshots from TV
+
+    * Use Path for paths representation
+
+    * Use file descriptors methods for write to file instead of logger methods
+
+    * Remove open function in utils functions
+
+    * Changed place to store log files 
+    
+    * Make a log file for update tv firmware/reconnect mods in new place
+
+Aleksandr Ilin <ailin@luxoft.com>
+    
+    * save the rabbit story finished.
+
+
+v7.0 2018-01-21
+
+Evgenii Metelev <emetelev@luxoft.com>
+
+    * Changed exception flow in all controllers
+
+    * Huge controllers refactoring
+
+Aleksandr Ilin <ailin@luxoft.com>
+    
+    * added dockerfile
+
+
+v0.6.1-rc 2017-12-18 Evgenii Metelev <emetelev@luxoft.com>
+
+    * Add new camlog script execution in nightdcm controller
+
+    * Add new for_ci_plus_auth.py controller
+
+    * Add new for_ci_plus_nightdcm.py controller
+
+    * Add possibility to list all available tv firmware to update
+
+    * Rename tvsoftware to firmware in all relevant modules
+
+v0.6.0-rc 2017-11-17 Evgenii Metelev <emetelev@luxoft.com>
+
+    * Replace subprocess execution on paramiko command execution
+      in utils/ to download/remove crash/dump/service_list_db
+      files from TV
+
+    * Added possibility to toggle power in usb sockets
+
+    * If test file is missed test execution will continue
+
+    * Added possibility to update TV software via http in api.py
+
+    * Added possibility to reconnect DTU(USB) and DTA(PCI)
+      modulators in api.py
+
+    * Not using anymore common ci_apps folder. Now only using subfolders
+      like "V_4_4", "V_4_3", etc in "Tools" for CAM tests
+
+    * Updated DCM controller. Now it works properly
+
+
+v0.5.0 2017-09-20
+
+Aleksandr Ilin <ailin@luxoft.com>
+
+    * Controllers comes as a part of client application
+
+    * Client application and TP separated
+
+    * Minor refactoring
+
+Evgenii Metelev <emetelev@luxoft.com>
+
+    * Removed add ssh key to known_hosts in utilities.py
+
+    * Add TEST_DIR and TOOLS_DIR to controller.py
+
+    * Add handling situation of absence "Test result" in test log
+      in __parse_log_file()
+
+
+v0.4.3 2017-08-01 Evgenii Metelev <emetelev@luxoft.com>
+
+    * In controller.py changed handling of test logs
+
+    * In controller.py add support for FVP tests
+
+
+v0.4.2 2017-07-12 Evgenii Metelev <emetelev@luxoft.com>
+
+    * Added timeout controller
+
+    * Moved choose controller logic and start-stop tests logic
+            from test_runner.py to controller.py

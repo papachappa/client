@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="generator" content="HTML Tidy for Linux/x86 (vers 25 March 2009), see www.w3.org" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>WeBiz</title>
+<script type="text/javascript">
+
+//TEST INITIALISATION
+
+window.onload = function(){
+        manager(["Connect"]);
+};
+
+function manager(args) {
+
+    var steps = {
+
+        "Connect" : function() {
+
+        function wait(ms){
+                  var start = new Date().getTime();
+                  var end = start;
+                  while(end < start + ms) {
+                    end = new Date().getTime();
+                 }
+               }
+        function tv_connect() {
+            var connectionTimeout =  5000;
+            var startTimeout =  3000;
+            var connectionTimeoutId = 0;
+
+
+        function onConnectionStateChanged(state) {
+            if(state === 2) {
+                connector.onConnectionStateChanged.disconnect(
+                    this, onConnectionStateChanged);
+                clearTimeout(connectionTimeoutId);
+                jbiz.writeLine("Connection to TV established");
+                setTimeout(runScript, startTimeout);
+            }
+            else {
+                jbiz.writeLine("WeBiz cannot connect to TV!");
+                jbiz.writeLine("But main script will be continued!");
+                jbiz.writeLine("#ERROR");
+            }
+        }
+
+        function onConnectionTimeout() {
+            jbiz.writeLine("WeBiz cannot connect to TV!");
+            jbiz.writeLine("But main script will be continued!");
+            jbiz.writeLine("#ERROR");
+            setTimeout(jbiz.exit, 1000);
+        }
+
+        function runScript() {
+            var dataModel = connector.dataModel;
+            window.dataModel = dataModel;
+            var de = dataModel.de;
+            window.de = de;
+            jbiz.writeLine("All APIs are connected.");
+            wait(2000);
+            manager(["GetValue"]);
+            // setTimeout(exitFunc, 2000);
+        }
+
+        //create JBizConnector object
+        var connector = biz.createConnector();
+        window.connector = connector;
+        //use onConnectionStateChanged function to listen for connection state
+        // change
+        connector.onConnectionStateChanged.connect(this, onConnectionStateChanged);
+        //connect to device
+        connectionTimeoutId = setTimeout(onConnectionTimeout, connectionTimeout);
+        // Last parameter defines whether all objects should be connected
+        // by default
+        connector.connect("localhost", 12321, true);
+        }
+            tv_connect();
+        },
+
+        "GetValue" : function(){
+            var myVariable = de.loewe.sl2.messages.messageparams;
+            if (typeof(myVariable) != undefined) {
+                init_value = myVariable.getValue()
+                jbiz.writeLine("Initial Value: "+ init_value);
+                if (String(init_value).search(/fail/i) != -1) {
+                    jbiz.writeLine("TV update failed");
+                    manager(["Results"]);
+                }
+            }
+            else
+                {
+                jbiz.writeLine("Can not get API status from TV");
+                jbiz.writeLine("But main script will be continued!");
+                jbiz.writeLine("#ERROR");
+                manager(["Results"]);
+            }
+
+            //function value_change(){
+                myVariable.onChange.connect(
+                    function(newValue){
+                        jbiz.writeLine("Current value: "+ newValue);
+                        // Timeout between states if we do not get sw update between timeout, we fail the test
+                        // In case of this useless - simply remove it 
+                        // ***
+                        if (String(init_value) != String(newValue)) {
+                            init_value = newValue
+                        }
+                        else if (String(init_value) == String(newValue)) {
+                            setTimeout(fail_timeout, 180000)                
+                        }
+                        // ***
+                        if (String(newValue).search(/successfully finished/i) != -1) {
+                            jbiz.writeLine("TV successfully updated");
+                            manager(["Results"]);
+                        }
+                    }
+                );
+            //}
+            //var exec_value_change = setInterval(value_change, 10000);
+            
+            function fail_timeout(){
+                jbiz.writeLine("Timeout of getting value from TV occurred. Probably something went wrong.");
+                jbiz.writeLine("But main script will be continued!");
+                jbiz.writeLine("#ERROR");
+                manager(["Results"])
+            }
+            // global timeout and initial timeout
+            setTimeout(fail_timeout, 300000)
+        },
+
+        "Results" : function(){
+            setTimeout(function(){jbiz.exit()},1000);
+        }
+    };
+    steps[args[0]](args.splice(1, 1));
+}
+
+
+
+</script>
+</head>
+<body>
+<div style="float:left; width:100%; text-align:left;">
+<div id='idTestProcess'></div>
+</div>
+</body>
+</html>

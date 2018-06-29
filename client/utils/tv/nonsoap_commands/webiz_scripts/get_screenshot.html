@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="generator" content="HTML Tidy for Linux/x86 (vers 25 March 2009), see www.w3.org" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>WeBiz</title>
+<script type="text/javascript">
+
+//TEST INITIALISATION
+var PARAM = "1"
+var PATH = "/tmp/tvscreen"
+
+
+window.onload = function(){
+        manager(["Connect"]);
+};
+
+function manager(args) {
+
+    var steps = {
+
+        "Connect" : function() {
+
+            function wait(ms){
+                var start = new Date().getTime();
+                var end = start;
+                while(end < start + ms) {
+                end = new Date().getTime();
+                }
+            }
+
+            function tv_connect() {
+                var connectionTimeout =  3000;
+                var startTimeout =  1000;
+                var connectionTimeoutId = 0;
+
+
+            function onConnectionStateChanged(state) {
+                if(state === 2) {
+                    connector.onConnectionStateChanged.disconnect(
+                    this, onConnectionStateChanged);
+                    clearTimeout(connectionTimeoutId);
+                    jbiz.writeLine("Connection to TV established");
+                    setTimeout(runScript, startTimeout);
+                }
+                else {
+                    jbiz.writeLine("WeBiz cannot connect to TV!");
+                    jbiz.writeLine("#ERROR");
+                }
+            }
+
+            function onConnectionTimeout() {
+                jbiz.writeLine("WeBiz cannot connect to TV!");
+                jbiz.writeLine("#ERROR");
+                setTimeout(jbiz.exit, 1000);
+            }
+
+            function runScript() {
+                var dataModel = connector.dataModel;
+                window.dataModel = dataModel;
+                var de = dataModel.de;
+                window.de = de;
+                jbiz.writeLine("All APIs are connected.");
+                wait(2000);
+                manager(["SetScreenshotPath"]);
+                // setTimeout(exitFunc, 2000);
+            }
+
+            //create JBizConnector object
+            var connector = biz.createConnector();
+            window.connector = connector;
+            //use onConnectionStateChanged function to listen for connection state
+            // change
+            connector.onConnectionStateChanged.connect(this, onConnectionStateChanged);
+            //connect to device
+            connectionTimeoutId = setTimeout(onConnectionTimeout, connectionTimeout);
+            // Last parameter defines whether all objects should be connected
+            // by default
+            connector.connect("localhost", 12321, true);
+            }
+            
+            tv_connect();
+        },
+
+        "SetScreenshotPath" : function(){
+            var api = de.loewe.sl2.gui.cmd.capture.gfx
+            try {
+                call(api);
+            } catch (e) {
+                jbiz.writeLine("#ERROR happened while executing call api " + e);
+            }
+
+            function call(o){
+                action = o;
+                action.connect();
+                jbiz.writeLine("Connected to " + o.getFullName());
+                setTimeout(function(){
+                    result = action.call([PATH, PARAM])
+                    jbiz.writeLine("Call id: "+ result.id+
+                        ", call status: "+ result.status)
+                },1000)
+            }
+
+            manager(["End"]);
+        },
+            
+        "End" : function(){
+            setTimeout(function(){jbiz.exit()},1000);
+        }
+    };
+    steps[args[0]](args.splice(1, 1));
+}
+
+</script>
+</head>
+<body>
+<div style="float:left; width:100%; text-align:left;">
+<div id='idTestProcess'></div>
+</div>
+</body>
+</html>
